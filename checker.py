@@ -1,3 +1,5 @@
+# © Proxy Checker- Made by Yuval Simon. For bogan.cool
+
 import requests
 from colorama import Fore, Style
 import threading
