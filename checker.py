@@ -10,6 +10,7 @@ input_type = input("[CONSOLE] Shoud I input bad proxies too? (y/n): ")
 
 checked = 0
 
+
 def check(proxy):
     global timeout, Type, input_type, checked
     fe = open('good.txt', 'a+')
