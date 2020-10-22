@@ -1,7 +1,6 @@
 import requests
 from colorama import Fore, Style
 import multiprocessing
-import sys
 import random
 import time
 
