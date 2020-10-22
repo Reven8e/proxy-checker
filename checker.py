@@ -1,22 +1,20 @@
-# © Proxy Checker- Made by Yuval Simon. For bogan.cool
-
 import requests
 from colorama import Fore, Style
-import threading
+import multiprocessing
 import sys
 import random
+import time
 
-thr = int(input("[CONSOLE] Please enter threading number (10-100): "))
-timeout = int(input("[CONSOLE] Please enter timeout(1-10): "))
-input_type = input("[CONSOLE] Shoud I input bad proxies too? (y/n): ")
+thr = int(input(f"{Fore.BLUE}[CONSOLE] Please enter threading number (10-100): "))
+timeout = int(input(f"{Fore.BLUE}[CONSOLE] Please enter timeout(1-10): "))
+input_type = input(f"{Fore.BLUE}[CONSOLE] Shoud I input bad proxies too? (y/n): ")
+FILE = input(f"{Fore.BLUE}[CONSOLE] Please enter filename with out the extension: ")
 
 checked = 0
-
 
 def check(proxy):
     global timeout, Type, input_type, checked
     fe = open('good.txt', 'a+')
-    checked += 1
     headers = {'User-Agent': ''}
     user_agent_list = [
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36',
@@ -63,18 +61,24 @@ def check(proxy):
         else:
             pass
 
-threads = []
-for i in range(thr):
-    with open("http.txt", 'r', encoding="utf-8", errors='ignore') as f:
-        proxs = f.readlines()
-        for proxy in proxs:
-                t = threading.Thread(target=check, args=[proxy])
-                t.start()
-                threads.append(t)
+with open(f"{FILE}.txt", 'r', encoding="utf-8", errors='ignore') as f:
+    proxs = f.readlines()
+    LEN = len(proxs)
+    processes = []
+    for i in range(10):
+        if checked < LEN:
+            for proxy in proxs:
+                    p = multiprocessing.Process(target=check, args=[proxy])
+                    p.start()
+                    checked += 1
+                    processes.append(p)
 
-for thread in threads:
-    thread.join()
-
+            for process in processes:
+                process.join()
+        elif checked > LEN:
+            time.sleep(0.03)
+            for process in processes: 
+                process.stop
 
 lines_seen = set()
 outfile = open('good_no_dups.txt', "w")
