@@ -1,19 +1,26 @@
+# © Proxy checker- Discord.py- Made by Yuval Simon. For bogan.cool
+
+import random, time, sys
+
 import requests
+
 from colorama import Fore, Style
+
 import multiprocessing
-import random
-import time
+
 
 thr = int(input(f"{Fore.BLUE}[CONSOLE] Please enter threading number (10-100): "))
 timeout = int(input(f"{Fore.BLUE}[CONSOLE] Please enter timeout(1-10): "))
-input_type = input(f"{Fore.BLUE}[CONSOLE] Shoud I input bad proxies too? (y/n): ")
-FILE = input(f"{Fore.BLUE}[CONSOLE] Please enter filename with out the extension: ")
+TARGET = input(f"{Fore.BLUE}[CONSOLE] Please full url site target: ")
+FILE = input(f"{Fore.BLUE}[CONSOLE] Please enter filename without the extension: ")
+TYPE = input(f"{Fore.BLUE}[CONSOLE] Please enter proxy type: ")
+BAD_PROXIES = input(f"{Fore.BLUE}[CONSOLE] Shoud I input bad proxies too? (y/n): ")
 
+fe = open('good.txt', 'a+')
 checked = 0
 
 def check(proxy):
-    global timeout, Type, input_type, checked
-    fe = open('good.txt', 'a+')
+    global timeout, Type, BAD_PROXIES, checked, TYPE, goods, fe
     headers = {'User-Agent': ''}
     user_agent_list = [
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36',
@@ -44,40 +51,86 @@ def check(proxy):
         "Opera/9.80 (Macintosh; Intel Mac OS X 10.6.8; U; fr) Presto/2.9.168 Version/11.52",
     ]
     headers['User-Agent'] = random.choice(user_agent_list)
-    try:
-        req = requests.get('https://www.google.com', headers=headers,proxies={'https': f'https://{proxy}', 'http': f'http://{proxy}'}, timeout=timeout)
-        if req.ok:
-            print(f'{Fore.GREEN} {checked} Good request: {proxy}')
-            fe.write(proxy)
-            fe.close()
+    
+    if TYPE == "http":
+        try:
+            req = requests.get(f'{TARGET}', headers=headers, proxies={'https': f'https://{proxy}', 'http': f'http://{proxy}'}, timeout=timeout)
+            if req.ok:
+                print(f'{Fore.GREEN} {checked} Good request: {proxy}')
+                fe.write(proxy)
+                fe.close()
 
-        else:
-            print(req.status_code)
-            pass
-    except:
-        if input_type == 'y':
-            print(f"{Fore.RED} {checked} Bad request: {proxy}")
-        else:
-            pass
+            else:
+                print(req.status_code)
+                pass
+        except:
+            if BAD_PROXIES == 'y':
+                print(f"{Fore.RED} {checked} Bad request: {proxy}")
+            else:
+                pass
+    
+    elif TYPE == "socks4":
+        try:
+            req = requests.get(f'{TARGET}', headers=headers, proxies={'https': f'socks4://{proxy}', 'http': f'socks4://{proxy}'}, timeout=timeout)
+            if req.ok:
+                print(f'{Fore.GREEN} {checked} Good request: {proxy}')
+                fe.write(proxy)
+                fe.close()
 
-with open(f"{FILE}.txt", 'r', encoding="utf-8", errors='ignore') as f:
-    proxs = f.readlines()
-    LEN = len(proxs)
-    processes = []
-    for i in range(10):
-        if checked < LEN:
-            for proxy in proxs:
-                    p = multiprocessing.Process(target=check, args=[proxy])
-                    p.start()
-                    checked += 1
-                    processes.append(p)
+            else:
+                print(req.status_code)
+                pass
+        except:
+            if BAD_PROXIES == 'y':
+                print(f"{Fore.RED} {checked} Bad request: {proxy}")
+            else:
+                pass
 
-            for process in processes:
-                process.join()
-        elif checked > LEN:
-            time.sleep(0.03)
-            for process in processes: 
-                process.stop
+    elif TYPE == "socks5":
+        try:
+            req = requests.get(f'{TARGET}', headers=headers, proxies={'https': f'socks5://{proxy}', 'http': f'socks5://{proxy}'}, timeout=timeout)
+            if req.ok:
+                print(f'{Fore.GREEN} {checked} Good request: {proxy}')
+                fe.write(proxy)
+                fe.close()
+
+            else:
+                print(req.status_code)
+                pass
+        except:
+            if BAD_PROXIES == 'y':
+                print(f"{Fore.RED} {checked} Bad request: {proxy}")
+            else:
+                pass
+
+try:
+    with open(f"{FILE}.txt", 'r', encoding="utf-8", errors='ignore') as f:
+        proxs = f.readlines()
+        LEN = len(proxs)
+        processes = []
+        for _ in range(thr):
+            if checked < LEN:
+                for proxy in proxs:
+                        p = multiprocessing.Process(target=check, args=[proxy])
+                        p.start()
+                        checked += 1
+                        processes.append(p)
+
+                for process in processes:
+                    process.join()
+
+            elif checked > LEN:
+                time.sleep(0.03)
+                for process in processes: 
+                    process.stop
+                fe.close()
+            
+                
+
+
+except FileNotFoundError:
+    print(f'{Fore.RED}[CONSOLE] File not found.')
+    sys.exit()
 
 lines_seen = set()
 outfile = open('good_no_dups.txt', "w")
@@ -86,3 +139,5 @@ for line in open('good.txt', "r"):
         outfile.write(line)
         lines_seen.add(line)
 outfile.close()
+
+print(f'{Fore.YELLOW}[CONSOLE] Done checking {checked} proxies. \nFound {len(lines_seen)} good proxies.')
