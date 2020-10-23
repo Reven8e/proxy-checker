@@ -1,4 +1,7 @@
-# proxy-checker v0.1
-- Supports only http/s for now.
-- This checker has some threading problems.
-- This checker does not support all websites.
+# proxy-checker v2.0
+
+- Supports http/s, socks4, socks5.
+- Uses multithreading.
+- You can choose your own target for the proxies.
+- Auto removes duplicates.
+- This tool auto saves good proxies.
