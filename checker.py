@@ -1,4 +1,4 @@
-# © Proxy checker- Discord.py- Made by Yuval Simon. For www.bogan.cool
+# © Proxy checker- Made by Yuval Simon. For www.bogan.cool
 
 import random, time, sys
 
